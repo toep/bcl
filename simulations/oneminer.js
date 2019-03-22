@@ -38,7 +38,7 @@ minnie.initialize(genesis);
 // Alice transfers some money to Bob.
 let bobAddr = bob.wallet.makeAddress();
 console.log(`Alice is transfering 40 coins to ${bobAddr}`);
-alice.postTransaction([{ amount: 40, address: bobAddr }]);
+alice.postTransaction([{ address: bobAddr, amount: 40 }]);
 
 // Print out the final balances after it has been running for some time.
 setTimeout(() => {

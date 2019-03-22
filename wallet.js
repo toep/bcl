@@ -89,22 +89,29 @@ module.exports = class Wallet {
       throw new Error(`Insufficient funds.  Requested ${amount}, but only ${this.balance} is available.`);
     }
 
+    //each coins should contain { txID, outputIndex, pubKey, sig } 
     //
     // **YOUR CODE HERE**
     //
-    // Gather enough "coins" from the wallet to meet or exceed
-    // the specified amount.  Create an array of inputs that
-    // can unlock the UTXOs.
-    //
-    // Return an object containing the array of inputs and the
-    // amount of change needed.
+    let needed = [];
+    for(let i = 0; i < this.coins.length; i++) {
+      if(amount > 0) {
+        let c = this.coins[i];
+        c.pubKey = this.addresses[c.output.address].public;
+        c.sig = utils.sign(this.addresses[c.output.address].private, c.output);
+        needed.push(c);
+        amount -= c.output.amount;
+        delete c.output;
+      }
+      else {
+        break;
+      }
+    }
+    needed.forEach(element => {
+      this.coins.splice(this.coins.indexOf(element), 1);
+    });
 
-
-    // Currently returning default values.
-    return {
-      inputs: [],
-      changeAmt: 0,
-    };
+    return {inputs: needed, changeAmt: -amount};
 
   }
 

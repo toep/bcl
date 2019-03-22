@@ -161,7 +161,7 @@ describe("Wallet", () => {
 describe('Block', function() {
   describe('#addTransaction', function() {
     // Slow test.
-    /*
+    
     let aliceWallet = new Wallet();
     let bobWallet = new Wallet();
     let charlieWallet = new Wallet();

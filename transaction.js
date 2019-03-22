@@ -90,6 +90,33 @@ module.exports = class Transaction {
     //
     // **YOUR CODE HERE**
     //
+
+    let inSum = 0, outSum = 0;
+    let valid = true;
+    this.inputs.forEach((txIn, txInIDX) => {
+      //out: {amount, address}
+      //in:  {txID, outputIndex, pubKey, sig}
+      //sole.log(`Available utxos: %j`, utxos);
+      //console.log(`my utxo: %j, `, txIn);
+      const utxo = utxos[txIn.txID];
+      if(!utxo) {valid = false; console.log('utxos for that txIn.txId not found');}
+      else if(!utxo[txIn.outputIndex]) { valid = false; console.log('the outputIndex for the utxo is not valid');}
+      else {
+        const prevOut = utxo[txIn.outputIndex];
+        if(prevOut.address === utils.calcAddress(txIn.pubKey) && utils.verifySignature(txIn.pubKey, prevOut, txIn.sig)) {
+          inSum += prevOut.amount
+        }
+        else {
+          console.log('prevOut address does not match input pubkey');
+          valid = false;
+        }
+      }
+    });
+    if(!valid) return false;
+    this.outputs.forEach((txOut) => {
+      outSum += txOut.amount;
+    });
+    if(inSum < outSum) return false;
     // Return false if the sum of inputs is less than the sum of outputs.
     //
     // This is more difficult than it sounds, since the inputs do not have
@@ -104,7 +131,7 @@ module.exports = class Transaction {
     //      is valid.
     // 4) From here, you can gather the amount of **input** available to
     //      this transaction.
-
+    return true;
   }
 
   /**

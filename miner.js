@@ -90,13 +90,12 @@ module.exports = class Miner extends Client {
       //
       // **YOUR CODE HERE**
       //
-      // Search for a proof.  If one is found, the miner should add the coinbase
-      // rewards (including the transaction fees) to its wallet.
-      //
-      // Next, announce the proof to all other miners.
-      //
-      // After that, create a new block and start searching for a proof.
-      // The 'startNewSearch' method might be useful for this last step.
+      if(this.isValidBlock(this.currentBlock)) {
+        this.receiveOutput(this.currentBlock.coinbaseTX);
+        this.announceProof();
+        this.startNewSearch();
+        this.log("found proof. Starting new block.")
+      }
 
       this.currentBlock.proof++;
     }
@@ -123,7 +122,7 @@ module.exports = class Miner extends Client {
   isValidBlock(b) {
     // FIXME: Should verify that a block chains back to a previously accepted block.
     if (!b.verifyProof()) {
-      this.log(`Invalid proof.`);
+      //this.log(`Invalid proof.`);
       return false;
     }
     return true;

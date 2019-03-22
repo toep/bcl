@@ -188,18 +188,28 @@ module.exports = class Block {
     if (!forceAccept && !this.willAcceptTransaction(tx)) {
       throw new Error(`Transaction ${tx.id} is invalid.`);
     }
-
     //
     // **YOUR CODE HERE**
     //
-    // First, store the transaction.
-    //
-    // Next, you will need to update the UTXOs to account for changes made by the transaction.
-    // That means you will need to:
-    // 1) Delete the spent UTXOs from the UTXO set.
-    // 2) Add newly created UTXOs to the UTXO set.
-    // 3) Calculate the miner's transaction fee, determined by the difference between the inputs and the outputs.
-    //    The addTransactionFee method might help you with this part.
+    this.transactions[tx.id] = tx;
+    let txFee = 0;
+    tx.inputs.forEach((input) => {
+      let txUXTOs = this.utxos[input.txID];
+      if (txUXTOs[input.outputIndex]) {
+        txFee += txUXTOs[input.outputIndex].amount;
+        this.utxos[input.txID].splice(input.outputIndex, 1);
+      }
+    });
+
+    this.utxos[tx.id] = [];
+    tx.outputs.forEach((output, txID) => {
+      this.utxos[tx.id][txID] = output;
+      txFee -= output.amount;
+    });
+
+    if(!forceAccept) { // only if this is not a coinbase transaction
+      this.addTransactionFee(txFee);
+    }
 
   }
 
@@ -250,6 +260,8 @@ module.exports = class Block {
    * Prints out the value of all UTXOs in the system.
    */
   displayUTXOs() {
+    //console.log("this.utxos = %j", this.utxos);
+    //console.log("obj keys of this.utxos = %j", Object.keys(this.utxos));
     Object.keys(this.utxos).forEach(txID => {
       let txUTXOs = this.utxos[txID];
       txUTXOs.forEach(utxo => {
