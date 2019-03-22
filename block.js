@@ -260,8 +260,6 @@ module.exports = class Block {
    * Prints out the value of all UTXOs in the system.
    */
   displayUTXOs() {
-    //console.log("this.utxos = %j", this.utxos);
-    //console.log("obj keys of this.utxos = %j", Object.keys(this.utxos));
     Object.keys(this.utxos).forEach(txID => {
       let txUTXOs = this.utxos[txID];
       txUTXOs.forEach(utxo => {

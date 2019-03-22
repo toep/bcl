@@ -90,14 +90,9 @@ module.exports = class Transaction {
     //
     // **YOUR CODE HERE**
     //
-
     let inSum = 0, outSum = 0;
     let valid = true;
     this.inputs.forEach((txIn, txInIDX) => {
-      //out: {amount, address}
-      //in:  {txID, outputIndex, pubKey, sig}
-      //sole.log(`Available utxos: %j`, utxos);
-      //console.log(`my utxo: %j, `, txIn);
       const utxo = utxos[txIn.txID];
       if(!utxo) {valid = false; console.log('utxos for that txIn.txId not found');}
       else if(!utxo[txIn.outputIndex]) { valid = false; console.log('the outputIndex for the utxo is not valid');}
@@ -117,20 +112,6 @@ module.exports = class Transaction {
       outSum += txOut.amount;
     });
     if(inSum < outSum) return false;
-    // Return false if the sum of inputs is less than the sum of outputs.
-    //
-    // This is more difficult than it sounds, since the inputs do not have
-    // a value listed.  In order to calculate their value:
-    //
-    // 1) Look up the list of UTXOs available for the transaction in the
-    //      'utxos' argument.
-    // 2) From that list, find the matching utxo.  (If you can't find it,
-    //      the transaction is invalid).
-    // 3) Verify the public key hash in the previous output matches the
-    //      transaction's public key, and that the signature on the UTXO
-    //      is valid.
-    // 4) From here, you can gather the amount of **input** available to
-    //      this transaction.
     return true;
   }
 
