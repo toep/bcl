@@ -115,6 +115,35 @@ module.exports = class Wallet {
 
   }
 
+  spendUTXOsFully(amount) {
+    if (amount > this.balance) {
+      throw new Error(`Insufficient funds.  Requested ${amount}, but only ${this.balance} is available.`);
+    }
+
+    //each coins should contain { txID, outputIndex, pubKey, sig } 
+
+    let needed = [];
+    for(let i = 0; i < this.coins.length; i++) {
+      if(amount > 0) {
+        let c = this.coins[i];
+        c.pubKey = this.addresses[c.output.address].public;
+        c.sig = utils.sign(this.addresses[c.output.address].private, c.output);
+        needed.push(c);
+        amount -= c.output.amount;
+        delete c.output;
+      }
+      else {
+        break;
+      }
+    }
+    needed.forEach(element => {
+      this.coins.splice(this.coins.indexOf(element), 1);
+    });
+
+    return {inputs: needed};
+
+  }
+
   /**
    * Makes a new keypair and calculates its address from that.
    * The address is the hash of the public key.
@@ -126,6 +155,20 @@ module.exports = class Wallet {
     let addr = utils.calcAddress(kp.public);
     this.addresses[addr] = kp;
     return addr;
+  }
+
+  getEligibilityAddress() {
+    return this.eligibility_address;
+  }
+
+  saveElibilityProof() {
+    let total_add = "";
+    let keys = Object.keys(this.addresses)
+    //let keys =[ ...this.addresses.keys() ];
+    for(const k of keys) {
+      total_add = this.addresses[k].public;
+    }
+    this.eligibility_address = total_add;
   }
 
   /**

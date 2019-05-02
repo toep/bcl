@@ -7,7 +7,7 @@ const Transaction = require('./transaction.js');
 const utils = require('./utils.js');
 
 const POW_BASE_TARGET = new BigInteger("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
-const POW_TARGET = POW_BASE_TARGET.shiftRight(20);
+const POW_TARGET = POW_BASE_TARGET.shiftRight(15);
 const COINBASE_AMT_ALLOWED = 25;
 
 /**

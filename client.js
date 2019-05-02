@@ -70,6 +70,27 @@ module.exports = class Client extends EventEmitter {
     this.broadcast(POST, tx);
   }
 
+  postCoinageTransaction(outputs) {
+    // We calculate the total value of coins needed.
+    let totalPayments = outputs.reduce((acc, {amount}) => acc + amount, 0);
+
+    // Make sure the client has enough money.
+    if (totalPayments > this.wallet.balance) {
+      throw new Error(`Requested ${totalPayments}, but wallet only has ${this.wallet.balance}.`);
+    }
+
+    // Gathering the needed inputs. If it goes a bit over, that full amount will be spent
+    // Ok as it is for coinage transactions
+    let { inputs } = this.wallet.spendUTXOsFully(totalPayments);
+
+    // Broadcasting the new transaction.
+    let tx = new Transaction({
+      inputs: inputs,
+      outputs: outputs,
+    });
+    this.broadcast(POST, tx);
+  }
+
   /**
    * Accepts payment and adds it to the client's wallet.
    */
